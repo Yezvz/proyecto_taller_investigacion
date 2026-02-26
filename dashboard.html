@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Control de Asistencia</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <button class="close-btn" onclick="toggleSidebar()">×</button>
+        <ul>
+            <li><a href="#">Perfil</a></li>
+            <li><a href="#">Horario</a></li>
+            <li><a href="#">Ajustes</a></li>
+            <li><a href="login.html">Cerrar Sesión</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <button class="menu-btn" onclick="toggleSidebar()">☰ Menú</button>
+
+        <div class="profile-panel">
+            <img src="https://via.placeholder.com/120" alt="Foto Alumno">
+            <h3>Jesus Martinez</h3>
+            <p><strong>semestre:</strong> 8</p>
+            <p><strong>numero de control:</strong> 22251022</p>
+        </div>
+
+        <div class="attendance-panel">
+            <h2>Asistencia del Día</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Hora</th>
+                        <th>Materia</th>
+                        <th>Asistencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>07:00 - 09:00</td>
+                        <td>Matemáticas</td>
+                        <td class="presente">Presente</td>
+                    </tr>
+                    <tr>
+                        <td>09:00 - 11:00</td>
+                        <td>Español</td>
+                        <td class="presente">Presente</td>
+                    </tr>
+                    <tr>
+                        <td>11:00 - 13:00</td>
+                        <td>Historia</td>
+                        <td class="ausente">Ausente</td>
+                    </tr>
+                    <tr>
+                        <td>13:00 - 15:00</td>
+                        <td>Ciencias</td>
+                        <td class="presente">Presente</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
