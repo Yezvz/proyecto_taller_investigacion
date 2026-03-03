@@ -2,30 +2,41 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - Control de Asistencia</title>
+    <title>Iniciar Sesión</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="login-wrapper">
-        <div class="login-container">
-            <h1>User Login</h1>
 
-            <div class="input-group">
-                <span class="icon">👤</span>
-                <input type="text" id="username" placeholder="Username">
-            </div>
+<div class="cards-wrapper">
 
-            <div class="input-group">
-                <input type="password" id="password" placeholder="Password">
-                <span class="icon">🔒</span>
-            </div>
-
-            <button onclick="login()">LOGIN</button>
-            <p id="error-msg" class="error-msg"></p>
-        </div>
+    <!-- Card izquierda -->
+    <div class="card card-info">
+        <h2>Bienvenido</h2>
+        <p>
+            Sistema de control de asistencia escolar.<br>
+            Accede con tu cuenta para continuar.
+        </p>
+        <button class="ghost-btn">Crear cuenta</button>
     </div>
 
+    <!-- Card derecha -->
+<div class="card card-login">
+    <h2>Iniciar sesión</h2>
+
+    <div class="input-group">
+        <span>👤</span>
+        <input type="text" id="username" placeholder="Usuario">
+    </div>
+
+    <div class="input-group">
+        <span>🔒</span>
+        <input type="password" id="password" placeholder="Contraseña">
+    </div>
+
+    <button class="main-btn" onclick="login()">Entrar</button>
+    <p id="error-msg" class="forgot"></p>
     <script src="script.js"></script>
+</div>
+    
 </body>
 </html>

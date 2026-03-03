@@ -1,81 +1,110 @@
 * {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #e8eef7, #d3dff0);
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
 }
 
-/* Login container */
-.login-wrapper {
-    width: 100%;
-    max-width: 400px;
-}
-
-.login-container {
-    background-color: #1c1c1c;
-    padding: 40px 30px;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-    text-align: center;
-    color: white;
-}
-
-.login-container h1 {
-    margin-bottom: 30px;
-    font-size: 28px;
-    letter-spacing: 1px;
-}
-
-/* Inputs */
-.input-group {
+/* CONTENEDOR */
+.cards-wrapper {
     position: relative;
-    margin-bottom: 20px;
+    width: 700px;
+    height: 420px;
+}
+
+/* CARTAS */
+.card {
+    position: absolute;
+    width: 380px;
+    height: 420px;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    transition: all 0.4s ease;
+}
+
+/* CARD INFO */
+.card-info {
+    background: white;
+    left: 0;
+    z-index: 1;
+}
+
+/* CARD LOGIN */
+.card-login {
+    background: #8fa7c9;
+    color: white;
+    right: 0;
+    z-index: 2;
+}
+
+/* EFECTO AL PASAR EL MOUSE */
+.card-info:hover {
+    transform: translateX(-30px);
+}
+
+.card-login:hover {
+    transform: translateX(30px);
+}
+
+/* INPUTS */
+.input-group {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.2);
+    border-radius: 30px;
+    padding: 10px 15px;
+    margin: 15px 0;
+}
+
+.input-group span {
+    margin-right: 10px;
 }
 
 .input-group input {
-    width: 100%;
-    padding: 15px 45px 15px 15px;
-    border-radius: 8px;
     border: none;
+    background: transparent;
     outline: none;
-    font-size: 16px;
-}
-
-.input-group .icon {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 18px;
-}
-
-/* Button */
-button {
+    color: white;
     width: 100%;
-    padding: 15px;
-    border-radius: 8px;
+}
+
+.input-group input::placeholder {
+    color: #eaeaea;
+}
+
+/* BOTONES */
+.main-btn {
+    width: 100%;
+    padding: 12px;
     border: none;
-    background-color: #007BFF;
+    border-radius: 30px;
+    background: #5d78a6;
     color: white;
     font-size: 16px;
-    font-weight: bold;
     cursor: pointer;
-    transition: 0.3s;
 }
 
-button:hover {
-    background-color: #0056b3;
+.ghost-btn {
+    background: transparent;
+    border: 2px solid #5d78a6;
+    color: #5d78a6;
+    padding: 12px 25px;
+    border-radius: 30px;
+    cursor: pointer;
 }
 
-.error-msg {
-    color: #ff6b6b;
+/* TEXTO */
+.forgot {
     margin-top: 15px;
+    font-size: 13px;
+    text-align: center;
+    cursor: pointer;
 }
