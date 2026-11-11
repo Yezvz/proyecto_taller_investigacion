@@ -1,42 +1,862 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Iniciar Sesión</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Credencial Inteligente para Buena Gente | Portal del Alumno ITTLA</title>
+  
+  <!-- Configuración PWA (Progressive Web App Offline) -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1b3a54">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Credencial ITTLA">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="theme-default">
 
-<div class="cards-wrapper">
-
-    <!-- Card izquierda -->
-    <div class="card card-info">
-        <h2>Bienvenido</h2>
-        <p>
-            Sistema de control de asistencia escolar.<br>
-            Accede con tu cuenta para continuar.
-        </p>
-        <button class="ghost-btn">Crear cuenta</button>
-    </div>
-
-    <!-- Card derecha -->
-<div class="card card-login">
-    <h2>Iniciar sesión</h2>
-
-    <div class="input-group">
-        <span>👤</span>
-        <input type="text" id="username" placeholder="Usuario">
-    </div>
-
-    <div class="input-group">
-        <span>🔒</span>
-        <input type="password" id="password" placeholder="Contraseña">
-    </div>
-
-    <button class="main-btn" onclick="login()">Entrar</button>
-    <p id="error-msg" class="forgot"></p>
-    <script src="script.js"></script>
-</div>
+  <!-- Escenario de Fondo Ilustrado (Inspirado en la imagen de referencia: montañas, niebla, sol, pinos y aves) -->
+  <div class="scenery-background" aria-hidden="true">
+    <div class="sky-gradient"></div>
+    <div class="sun-orb"></div>
+    <div class="cloud-layer layer-back"></div>
+    <div class="cloud-layer layer-mid"></div>
     
+    <!-- Siluetas de Aves -->
+    <svg class="birds-group" viewBox="0 0 400 120">
+      <path class="bird bird-1" d="M20,60 Q35,45 50,60 Q65,45 80,60" />
+      <path class="bird bird-2" d="M120,40 Q130,28 140,40 Q150,28 160,40" />
+      <path class="bird bird-3" d="M300,50 Q315,35 330,50 Q345,35 360,50" />
+      <path class="bird bird-4" d="M350,30 Q360,20 370,30 Q380,20 390,30" />
+    </svg>
+
+    <!-- Capas de Montañas con degradados suaves -->
+    <div class="mountain-range range-far"></div>
+    <div class="mountain-range range-mid"></div>
+    <div class="mountain-range range-near"></div>
+    <div class="mountain-range range-valley"></div>
+
+    <!-- Pinos / Vegetación de primer plano idéntica a la referencia -->
+    <div class="pines-silhouette pines-left"></div>
+    <div class="pines-silhouette pines-right"></div>
+    <div class="mist-overlay"></div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- 1. PANTALLA DE INICIO DE SESIÓN (LOGIN DEL ALUMNO)         -->
+  <!-- ========================================================= -->
+  <div id="screen-login" class="screen-view active">
+
+
+    <!-- Contenedor central con la tarjeta de cristal esmerilado -->
+    <main class="login-wrapper">
+      <div class="glass-card login-card" id="loginCardContainer">
+        <div class="login-badge-header">
+          <span class="ittla-pill">Taller de investigacion ll</span>
+        </div>
+
+        <!-- Control Centralizado de Conexión Bluetooth BLE -->
+        <div class="login-ble-widget" id="loginBleWidget">
+          <div class="login-ble-status" onclick="openBleModal()" title="Ver estado del lector Bluetooth ESP32">
+            <span class="ble-status-dot dot-disconnected" id="loginBleDot"></span>
+            <span class="login-ble-label" id="loginBleLabel">Lector BLE: Desconectado</span>
+          </div>
+          <button type="button" class="btn-login-ble" id="btnLoginBle" onclick="handleLoginBleClick()" title="Conectar ESP32 con lector PN532">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+              <path d="M6.5 6.5l11 11L12 23V1l5.5 5.5-11 11"/>
+            </svg>
+            <span id="btnLoginBleText">Conectar ESP32</span>
+          </button>
+        </div>
+        <h1 class="login-title">Credencial Inteligente </h1>
+<p
+         class="login-subtext">Bienvenido, ingresa tus credenciales para acceder a la plataforma
+</p>
+
+        <form id="form-login" onsubmit="handleLoginSubmit(event)" autocomplete="off">
+          <!-- Campo Matrícula Escolar -->
+          <div class="form-group-ref">
+            <input 
+              type="text" 
+              id="login-username" 
+              name="username" 
+              required 
+              placeholder="Matrícula (Ej. 22251022)"
+              value="22251022"
+            >
+            <span class="ref-input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect width="20" height="16" x="2" y="4" rx="2"/>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+            </span>
+          </div>
+
+          <!-- Campo Contraseña con botón Mostrar/Ocultar -->
+          <div class="form-group-ref">
+            <input 
+              type="password" 
+              id="login-password" 
+              name="password" 
+              required 
+              placeholder="Contraseña"
+              value="alumno2026"
+            >
+            <button 
+              type="button" 
+              class="ref-input-icon toggle-pass-btn" 
+              id="btn-toggle-pass" 
+              onclick="togglePasswordVisibility('login-password', 'btn-toggle-pass')"
+              title="Mostrar/Ocultar contraseña"
+            >
+              <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                <line x1="2" x2="22" y1="2" y2="22"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Fila de opciones: Recordar y Olvidé contraseña -->
+          <div class="form-row-options">
+            <label class="ref-checkbox-label">
+              <input type="checkbox" id="login-remember" checked>
+              <span class="custom-chk"></span>
+              <span class="chk-text">Recordar</span>
+            </label>
+            <a href="#" class="ref-forgot" onclick="showDemoAlert('Para restablecer contraseña de alumno, acude a Servicios Escolares o al Centro de Cómputo del ITTLA.')">
+              ¿Olvide mi <strong>contraseña?</strong>
+            </a>
+          </div>
+
+          <!-- Botón de acceso estilo píldora con degradado azul -->
+          <button type="submit" class="btn-ref-submit" id="btn-login-submit">
+            <span>Iniciar Sesión</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+
+          <!-- Pie de tarjeta institucional -->
+          <div class="login-card-footer">
+            <span>¿Problemas con tu credencial?</span>
+            <a href="#" class="ref-register-link" onclick="showDemoAlert('La vinculación de tarjetas NFC se realiza en el Departamento de Servicios Escolares.')">Ayuda</a>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <!-- Footer discreto en pantalla de acceso -->
+    <footer class="login-institutional-footer">
+      <span> Sistema de Seguridad y Asistencia</span>
+    </footer>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- 2. SISTEMA INTERNO: PANEL DEL ALUMNO                      -->
+  <!-- ========================================================= -->
+  <div id="screen-dashboard" class="screen-view">
+    <div class="dashboard-shell">
+      
+      <!-- Capa de fondo oscuro para el menú lateral desplegable -->
+      <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+      <!-- Menú Lateral (Sidebar) estilo Cristal Esmerilado (Desplegable) -->
+      <aside class="dashboard-sidebar" id="dashboardSidebar">
+        <!-- Encabezado del menú -->
+        <div class="sidebar-brand">
+          <div class="brand-crest">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          </div>
+          <div class="brand-meta">
+            <span class="system-name">Portal Alumno</span>
+            <span class="system-sub">ITTLA · Buena Gente</span>
+          </div>
+          <button class="sidebar-close-btn" onclick="toggleSidebar(false)" title="Cerrar menú">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- Indicador de estado de conexión del sensor Bluetooth BLE -->
+        <div class="system-status-indicator" id="sidebarBleIndicator" onclick="openBleModal()" style="cursor:pointer;" title="Ver estado del lector Bluetooth ESP32">
+          <span class="pulse-dot dot-disconnected" id="sidebarBleDot"></span>
+          <span class="status-label" id="sidebarBleLabel">Lector Desconectado</span>
+        </div>
+
+        <!-- Navegación exclusiva para el Estudiante: 2 OPCIONES -->
+        <nav class="sidebar-menu">
+          <div class="menu-section-label">MI CUENTA ESCOLAR</div>
+          
+          <button class="nav-item active" data-view="view-student-portal" onclick="navigateDashboard('view-student-portal')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+              <line x1="16" x2="16" y1="2" y2="6"/>
+              <line x1="8" x2="8" y1="2" y2="6"/>
+              <line x1="3" x2="21" y1="10" y2="10"/>
+              <circle cx="12" cy="15" r="2"/>
+            </svg>
+            <span>Asistencia</span>
+          </button>
+
+          <button class="nav-item" data-view="view-student-perfil" onclick="navigateDashboard('view-student-perfil')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span>Mi Perfil y Ajustes</span>
+          </button>
+        </nav>
+
+        <!-- Botón de Cerrar Sesión -->
+        <div class="sidebar-footer">
+          <button class="btn-logout" onclick="handleLogout()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" x2="9" y1="12" y2="12"/>
+            </svg>
+            <span>Cerrar Sesión</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Contenido Principal -->
+      <div class="dashboard-main-area">
+        
+        <!-- Barra Superior (Topbar) estilo vidrio esmerilado con botón hamburguesa -->
+        <header class="dashboard-topbar">
+          <div class="topbar-left">
+            <button class="hamburger-menu-btn mobile-menu-trigger" id="hamburgerMenuBtn" onclick="toggleSidebar()" title="Abrir Menú de Opciones" aria-label="Abrir Menú">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </button>
+            <div class="view-breadcrumb">
+              <span class="breadcrumb-sub">Portal Estudiantil ITTLA</span>
+              <h2 class="breadcrumb-title" id="currentViewTitle">Asistencia</h2>
+            </div>
+          </div>
+
+          <div class="topbar-actions">
+            <!-- Pill de Rol -->
+            <div class="user-role-badge">
+              <span class="role-dot"></span>
+              <span>Alumno</span>
+            </div>
+            <!-- Perfil de Usuario con avatar -->
+            <div class="topbar-user" onclick="navigateDashboard('view-student-perfil')" style="cursor:pointer;" title="Ver Mi Perfil y Credencial">
+              <div class="user-avatar-small" id="topbarAvatar">JM</div>
+              <span class="user-name-short" id="topbarUserName">Jesus Martinez</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Contenedor dinámico de pantallas del Alumno -->
+        <div class="views-wrapper">
+
+          <!-- ========================================================= -->
+          <!-- PANTALLA 1: CONTROL DE ASISTENCIA Y CALENDARIO DEL ALUMNO  -->
+          <!-- ========================================================= -->
+          <section id="view-student-portal" class="subview active">
+         
+
+            <!-- Tarjetas de Estadísticas del Alumno -->
+            
+
+            
+
+            <!-- Bloque 2: CALENDARIO INTERACTIVO Y DETALLE DEL DÍA -->
+            <div class="student-calendar-grid">
+              
+              <!-- Columna izquierda: Calendario Mensual -->
+              <div class="glass-card calendar-card">
+                <div class="calendar-header-controls">
+                  <button class="btn-ref-outline btn-xs" onclick="changeStudentCalendarMonth(-1)">&laquo; Mes Anterior</button>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <h3 class="calendar-month-title" id="calendarMonthTitle">Octubre 2026</h3>
+                    <button class="btn-ref-outline btn-xs" onclick="goToToday()" title="Ir al día actual de hoy" style="font-weight:700;">Hoy</button>
+                  </div>
+                  <button class="btn-ref-outline btn-xs" onclick="changeStudentCalendarMonth(1)">Siguiente Mes &raquo;</button>
+                </div>
+
+                <div class="calendar-weekdays">
+                  <span>Lun</span>
+                  <span>Mar</span>
+                  <span>Mié</span>
+                  <span>Jue</span>
+                  <span>Vie</span>
+                  <span>Sáb</span>
+                  <span>Dom</span>
+                </div>
+
+                <div class="calendar-days-grid" id="calendarDaysGrid">
+                  <!-- Días renderizados con script.js -->
+                </div>
+
+                <div class="calendar-legend-bar">
+                  <span class="c-legend-item"><span class="c-dot dot-present"></span> Puntual</span>
+                  <span class="c-legend-item"><span class="c-dot dot-late"></span> Retardo</span>
+                  <span class="c-legend-item"><span class="c-dot dot-absent"></span> Inasistencia</span>
+                  <span class="c-legend-item"><span class="c-dot dot-empty"></span> Inhábil / Fin de sem.</span>
+                  <span class="c-legend-item"><span class="today-tag" style="margin-top:0;">HOY</span> Día actual</span>
+                </div>
+
+
+
+
+
+
+
+
+
+
+                <!-- Bloque 1: Últimos Registros de Asistencia del Alumno -->
+            <div class="glass-card panel-table-card" style="margin-bottom: 24px;">
+              <div class="card-header-flex">
+                <div>
+                  <h3 class="card-title">Últimos Registros de Asistencia</h3>
+                  <p class="card-subtitle">Entradas y salidas registradas</p>
+                </div>
+                <button class="btn-ref-outline btn-sm" onclick="printStudentAttendance()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+                  Imprimir Comprobante
+                </button>
+              </div>
+
+              <div class="table-responsive">
+                <table class="custom-table" id="tableStudentRecentAttendance">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Hora</th>
+                      <th>Movimiento</th>
+                      <th>Estado</th>
+                      <th>Torniquete / Lector</th>
+                      <th>Folio Registro</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyStudentRecentAttendance">
+                    <!-- Filas renderizadas dinámicamente con script.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+              </div>
+
+              <!-- Columna derecha: Tarjeta de Consulta del Día Seleccionado (Fiel al formato solicitado) -->
+              <div class="glass-card day-detail-card" id="dayDetailCard">
+                <div class="day-detail-header">
+                  <div class="day-detail-badge">CONSULTA DE ASISTENCIA DIARIA</div>
+                  <h3 class="day-detail-date" id="dayDetailDateLabel">Cargando...</h3>             
+                </div>
+
+
+
+
+
+
+
+
+
+
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <!-- Detalle formateado exactamente como lo requirió el usuario -->
+                <div class="record-spec-box" id="recordSpecBox">
+                  <div class="spec-row">
+                    <span class="spec-label">Estudiante</span>
+                    <span class="spec-value" id="specStudentMatricula">22251022</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-label">Nombre</span>
+                    <span class="spec-value" id="specStudentName">Jesus Martinez Mar</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-label">Fecha</span>
+                    <span class="spec-value" id="specDate">--/--/----</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-label">Hora</span>
+                    <span class="spec-value highlight-time" id="specTime">07:05</span>
+                  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ <!--botones de hpra y activo-->
+<div class="quick-chip">
+                  <span class="q-label">Estado de Credencial</span>
+                  <span class="q-val text-success" id="studentPortalCardStatus">Activa</span>
+            </div>
+            <div class="quick-chip">
+                  <span class="q-label">Hora      </span>
+                  <span class="q-val" id="liveClockDisplay">07:05:00 AM</span>
+            </div>
+
+
+
+
+
+
+
+
+
+
+                </div>
+                <div class="secondary-record-box" id="secondaryRecordBox">
+                </div>
+                <div class="day-detail-note">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  <span>Haz clic sobre cualquier fecha en el calendario para consultar el registro detallado.</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          <!-- ========================================================= -->
+          <!-- PANTALLA 2: MI PERFIL Y AJUSTES (INCLUYE MI CREDENCIAL)   -->
+          <!-- ========================================================= -->
+          <section id="view-student-perfil" class="subview">
+            <div class="profile-layout-grid">
+              
+              <!-- Columna 1: Mi Credencial Inteligente Digital -->
+              <div class="glass-card digital-id-card-view">
+                <div class="card-header-flex">
+                  <h3 class="card-title">Mi Credencial Digital</h3>
+                  <span class="badge-status status-active">Activa y Verificada</span>
+                </div>
+
+                <!-- Tarjeta física renderizada con diseño escolar ITTLA -->
+                <div class="ittla-id-card-preview student-large-card" id="studentDigitalIdCard">
+                  <div class="id-card-top-row">
+                    <span class="id-brand">Taller · investigación 2</span>
+                    <span class="id-chip-icon">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="18" height="18" x="3" y="3" rx="2"/>
+                        <path d="M7 7h.01M17 7h.01M7 17h.01M17 17h.01M12 7v10M7 12h10"/>
+                      </svg>
+                    </span>
+                  </div>
+                  <div class="id-card-body-row">
+                    <div class="id-avatar-box large-avatar" id="studentCredAvatar">JM</div>
+                    <div class="id-details">
+                      <h4 id="studentCredName">Jesus Martinez Mar</h4>
+                      <p id="studentCredCareer">Ing. en Sistemas Computacionales</p>
+                      <div class="id-numbers">
+                        <span>Matrícula: <strong id="studentCredMatricula">22251022</strong></span>
+                        <span>Grupo: <strong id="studentCredGroup">ISC-501</strong></span>
+                      </div>
+                      <div class="id-numbers" style="margin-top:4px;">
+                        <span>NFC UID: <code id="studentCredUid">88:4D:21:6B</code></span>
+                        <span>Vigencia: <strong>Dic 2026</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="id-card-footer-row">
+                    <span>CREDENCIAL INTELIGENTE PARA BUENA GENTE</span>
+                    <span class="nfc-logo-text">NFC ))) </span>
+                  </div>
+                </div>
+
+                <div class="cred-actions" style="margin-top: 18px;">
+                  <button class="btn-ref-submit btn-sm btn-block" onclick="openNfcSimulatorModal()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    Simular Checada con esta Tarjeta
+                  </button>
+                </div>
+              </div>
+
+              <!-- Columna 2: Expediente Escolar y Perfil del Alumno -->
+              <div class="glass-card profile-card">
+                <div class="profile-header-visual">
+                  <div class="profile-avatar-large" id="profileCardAvatar">JM</div>
+                  <h3 class="profile-name" id="profileNameVal">Jesus Martinez Mar</h3>
+                  <span class="profile-badge-pill" id="profileStatusBadge">Alumno Regular</span>
+                  <span class="profile-email" id="profileEmailVal">22251022@tlalnepantla.tecnm.mx</span>
+                </div>
+
+                <h4 style="font-size:0.85rem; font-weight:700; color:var(--text-main); margin-bottom:12px;">Expediente Escolar Oficial</h4>
+                <div class="profile-meta-list">
+                  <div class="meta-row">
+                    <span class="m-label">Matrícula Oficial:</span>
+                    <span class="m-val"><code id="profileMatriculaVal">22251022</code></span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="m-label">Carrera / Plan:</span>
+                    <span class="m-val" id="profileCareerVal">Ing. en Sistemas Computacionales (ISIC-2010-224)</span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="m-label">Semestre y Grupo:</span>
+                    <span class="m-val" id="profileGroupVal">5º Semestre · Grupo ISC-501</span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="m-label">Turno Escolar:</span>
+                    <span class="m-val">Matutino (Entrada 07:00 AM)</span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="m-label">Tutor Asignado:</span>
+                    <span class="m-val">Mtro. Alejandro Ramos Pérez</span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="m-label">Estatus Académico:</span>
+                    <span class="badge-status status-active">Inscrito y Regular</span>
+                  </div>
+                </div>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                  <button class="btn-ref-outline" style="flex:1;" onclick="showToast('Tus datos están sincronizados con la base central del ITTLA.', 'info')">
+                    Verificar Datos
+                  </button>
+                  <button class="btn-ref-outline" style="flex:1;" onclick="showToast('Para aclaraciones sobre justificaciones médicas, acude a Prefectura.', 'info')">
+                    Aclaraciones
+                  </button>
+                </div>
+              </div>
+
+              <!-- Fila Inferior: Preferencias de la Interfaz -->
+              <div class="glass-card settings-card" style="grid-column: 1 / -1;">
+                <h3 class="section-title">Preferencias de la Interfaz</h3>
+                <p class="section-subtitle">Ajustes visuales y de interacción del portal estudiantil</p>
+
+                <div class="settings-group">
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <strong>Efecto de Desenfoque Translúcido (Glassmorphism)</strong>
+                      <p>Mantiene el fondo escénico con efecto esmerilado de la referencia</p>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" id="settingGlass" checked onchange="toggleGlassEffect(this.checked)">
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <strong>Sonido en Simulación de Pase NFC</strong>
+                      <p>Emite un pitido audible (Web Audio API) al registrar acceso exitoso</p>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" id="settingAudio" checked>
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <strong>Notificaciones en Pantalla (Toasts)</strong>
+                      <p>Muestra avisos al interactuar con el sistema</p>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" id="settingNotifications" checked>
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="settings-footer">
+                  <button class="btn-ref-danger" onclick="handleLogout()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                      <polyline points="16 17 21 12 16 7"/>
+                      <line x1="21" x2="9" y1="12" y2="12"/>
+                    </svg>
+                    <span>Cerrar Sesión</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+        </div> <!-- Fin views-wrapper -->
+
+      </div> <!-- Fin dashboard-main-area -->
+    </div> <!-- Fin dashboard-shell -->
+  </div> <!-- Fin screen-dashboard -->
+
+
+  <!-- ========================================================= -->
+  <!-- MODALES DE DIÁLOGO Y CONTROL BLUETOOTH BLE                -->
+  <!-- ========================================================= -->
+
+  <!-- Modal: Conexión Bluetooth BLE (ESP32 + PN532) y Registro Local -->
+  <div class="modal-backdrop" id="modalNfcSim">
+    <div class="glass-card modal-container modal-nfc-dialog">
+      <div class="modal-header">
+        <div class="modal-title-with-icon">
+          <div class="nfc-pulse-badge" id="nfcModalPulseIcon">BLE</div>
+          <div>
+            <h3 class="modal-title">Lector NFC ESP32 · Bluetooth BLE</h3>
+            <span class="modal-subtitle">Enlace inalámbrico directo con microcontrolador ESP32 y sensor PN532 (I2C)</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeBleModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Bloque A: Control de Enlace Bluetooth BLE con ESP32 -->
+        <div class="nfc-scanner-card glass-card">
+          <div class="scanner-card-header">
+            <div>
+              <span class="scanner-badge-label">MÓDULO BLUETOOTH BLE</span>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+                Dispositivo: <strong id="bleDeviceNameLabel" style="color:var(--text-main);">Ninguno</strong>
+              </div>
+            </div>
+            <span class="badge-status status-demo" id="bleModalStateBadge">Desconectado</span>
+          </div>
+
+          <div class="nfc-scanner-visual" id="nfcScannerVisualBox">
+            <div class="scanner-rings">
+              <div class="ring ring-1"></div>
+              <div class="ring ring-2"></div>
+              <div class="ring ring-3"></div>
+            </div>
+            <div class="scanner-device-icon">
+              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M6.5 6.5l11 11L12 23V1l5.5 5.5-11 11"/>
+              </svg>
+            </div>
+            <div class="scanner-status-text" id="bleModalStatusMessage">
+              Presiona "Conectar ESP32" para buscar y enlazar el torniquete por Bluetooth BLE.
+            </div>
+          </div>
+
+          <!-- Botones de Acción BLE -->
+          <button type="button" class="btn-ref-submit btn-block" id="btnBleModalConnect" onclick="handleBleConnectToggle()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            <span>Conectar ESP32 (Bluetooth)</span>
+          </button>
+
+          <button type="button" class="btn-ref-outline btn-block" id="btnBleModalReconnect" onclick="handleBleReconnect()" style="display:none; margin-top:8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+            <span>Reconectar Dispositivo</span>
+          </button>
+
+          <p class="nfc-compat-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>Requiere Google Chrome en Android, Bluetooth activo y antena PN532 conectada al ESP32 por I2C.</span>
+          </p>
+        </div>
+
+        <!-- Tarjeta de Última Lectura Registrada en Tiempo Real -->
+        <div class="glass-card" id="bleLastScanBox" style="display:none; padding:14px; margin-bottom:14px; border:1px solid rgba(16,185,129,0.4); background:rgba(16,185,129,0.08);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <strong style="font-size:0.82rem; color:var(--text-main);">Última Lectura de Credencial</strong>
+            <span class="badge-status status-active" id="bleLastScanResult">Registrado</span>
+          </div>
+          <div style="font-size:0.78rem; display:flex; flex-direction:column; gap:4px;">
+            <div>UID Detectado: <code id="bleLastScanUid" style="font-weight:800; font-size:0.9rem;">--</code></div>
+            <div>Estudiante: <strong id="bleLastScanStudent">--</strong></div>
+            <div>Hora del Evento: <span id="bleLastScanTime">--</span></div>
+          </div>
+        </div>
+
+        <!-- Separador de Modos -->
+        <div class="nfc-mode-divider">
+          <span>O PRUEBA LOCAL (VERIFICACIÓN SIN ESP32 FÍSICO)</span>
+        </div>
+
+        <!-- Bloque B: Alternativa de Comprobación Local (Para PC / Evaluadores) -->
+        <div class="nfc-demo-box glass-card">
+          <div class="demo-box-header">
+            <div>
+              <strong style="font-size:0.85rem; color:var(--text-main);">Simulador de Lectura NFC en IndexedDB</strong>
+              <p style="font-size:0.74rem; color:var(--text-muted); margin-top:2px;">
+                Permite enviar un UID de prueba para verificar el guardado en la base local y actualizar el calendario.
+              </p>
+            </div>
+            <span class="badge-status status-demo">Prueba Local</span>
+          </div>
+
+          <div class="form-grid-2" style="margin-top:12px;">
+            <div class="form-field">
+              <label for="nfcSimUidInput">UID de la Credencial:</label>
+              <input type="text" id="nfcSimUidInput" class="ref-input" value="884D216B" placeholder="Ej. 884D216B" style="font-family:monospace; font-weight:700; text-transform:uppercase;">
+            </div>
+
+            <div class="form-field">
+              <label for="nfcSimMovement">Tipo de Registro:</label>
+              <select id="nfcSimMovement" class="ref-select">
+                <option value="Entrada">Entrada al Plantel</option>
+                <option value="Salida">Salida del Plantel</option>
+              </select>
+            </div>
+
+            <div class="form-field" style="grid-column: 1 / -1;">
+              <label for="nfcSimStatus">Estado / Puntualidad:</label>
+              <select id="nfcSimStatus" class="ref-select">
+                <option value="Puntual">Puntual (En horario)</option>
+                <option value="Retardo">Retardo (+15 minutos)</option>
+                <option value="Salida Normal">Salida Normal</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Vista previa de la tarjeta física -->
+          <div class="ittla-id-card-preview" id="simCardPreview" style="margin-top:12px;">
+            <div class="id-card-top-row">
+              <span class="id-brand">TECNM / ITTLA · PN532 BLE</span>
+              <span class="id-chip-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect width="18" height="18" x="3" y="3" rx="2"/>
+                  <path d="M7 7h.01M17 7h.01M7 17h.01M17 17h.01M12 7v10M7 12h10"/>
+                </svg>
+              </span>
+            </div>
+            <div class="id-card-body-row">
+              <div class="id-avatar-box">JM</div>
+              <div class="id-details">
+                <h4>Jesus Martinez Mar</h4>
+                <p>Ing. en Sistemas Computacionales</p>
+                <div class="id-numbers">
+                  <span>Matrícula: <strong>22251022</strong></span>
+                  <span>UID NFC: <code>884D216B</code></span>
+                </div>
+              </div>
+            </div>
+            <div class="id-card-footer-row">
+              <span>CREDENCIAL INTELIGENTE PARA BUENA GENTE</span>
+              <span class="nfc-logo-text">PN532 · BLE</span>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;">
+            <button type="button" class="btn-ref-outline btn-block" onclick="executeLocalScanSimulation()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+              <span>Simular Checada en IndexedDB</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-ref-outline" onclick="closeBleModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Informativo: Acerca del Proyecto -->
+  <div class="modal-backdrop" id="modalAbout">
+    <div class="glass-card modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalAboutTitle">Credencial Inteligente para Buena Gente</h3>
+        <button class="modal-close-btn" onclick="closeAboutModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalAboutContent">
+        <p><strong>Instituto Tecnológico de Tlalnepantla (ITTLA)</strong></p>
+        <p>Proyecto escolar enfocado en el control de asistencia y seguridad mediante credenciales inteligentes NFC (PN532), microcontrolador ESP32 con Bluetooth BLE, base de datos local IndexedDB y PWA instalable sin internet.</p>
+        <div class="features-bullets">
+          <div class="bullet-item">✓ Lectura NFC directa mediante módulo PN532 conectado por I2C al ESP32 (SDA 21, SCL 22)</div>
+          <div class="bullet-item">✓ Transmisión inalámbrica de UID por Bluetooth Low Energy (Web Bluetooth API)</div>
+          <div class="bullet-item">✓ Almacenamiento local persistente en IndexedDB (100% offline, sin servidores ni MySQL)</div>
+          <div class="bullet-item">✓ PWA instalable en celulares Android con Service Worker y funcionamiento sin conexión</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-ref-submit" onclick="closeAboutModal()">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor flotante para Notificaciones Toast -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Arquitectura PWA Offline: IndexedDB + Bluetooth BLE + Asistencia Local -->
+  <script src="js/database.js"></script>
+  <script src="js/bluetooth-service.js"></script>
+  <script src="js/attendance-service.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

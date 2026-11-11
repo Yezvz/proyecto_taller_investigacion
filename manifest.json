@@ -1,0 +1,26 @@
+{
+  "name": "Credencial Inteligente ITTLA",
+  "short_name": "Credencial ITTLA",
+  "description": "Sistema escolar de control de asistencia mediante credencial NFC y Bluetooth BLE con ESP32",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a192d",
+  "theme_color": "#1b3a54",
+  "lang": "es-MX",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

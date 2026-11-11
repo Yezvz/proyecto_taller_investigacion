@@ -1,18 +1,15 @@
-// Usuario de prueba
-const student = {
-    username: "l22251022",
-    password: "12345"
-};
+/**
+ * ============================================================================
+ * CREDENCIAL INTELIGENTE ITTLA — ENRUTADOR PRINCIPAL (PWA OFFLINE + BLE)
+ * Archivo: script.js
+ * Propósito: Punto de entrada unificado hacia la arquitectura modular local
+ *            (IndexedDB, Bluetooth BLE, Attendance Service, App).
+ * ============================================================================
+ */
 
-function login() {
-    const usernameInput = document.getElementById("username").value;
-    const passwordInput = document.getElementById("password").value;
-    const errorMsg = document.getElementById("error-msg");
-
-    if (usernameInput === student.username && passwordInput === student.password) {
-        // Redirige al dashboard
-        window.location.href = "dashboard.html";
-    } else {
-        errorMsg.textContent = "Usuario o contraseña incorrectos";
-    }
-}
+(function () {
+  'use strict';
+  if (typeof window !== 'undefined') {
+    console.info('[ITTLA] Arquitectura PWA Offline + Bluetooth BLE cargada.');
+  }
+})();
